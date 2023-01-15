@@ -4,7 +4,7 @@ Small render manager for Blender (2.8+) with a graphical user interface
 # Getting started 
 1. Open gui.exe
 2. Add blend file(s) (Drag n Drop or by using the add button) 
-3. Settings -> add Blender to add a Blender.exe
+3. Settings -> Blender to add a Blender.exe by pressing the add button or draging and droping a blender.exe
 4. Adjust Render Settings 
 5. Press Render 
 # Features:
