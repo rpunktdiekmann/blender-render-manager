@@ -141,12 +141,12 @@ class MainGUI:
 
         if not os.path.exists('settings.json'):
             with open('settings.json', 'w'): pass
-            self.settings = self.ProgramSettings()
+            self.settings = self.ProgramSettings([])
         else:
             try:
                 self.settings = MainGUI.readSettingsJSON()
             except Exception:
-                self.settings = self.ProgramSettings()
+                self.settings = self.ProgramSettings([])
         self.settings.blenderVersions = []
 
         self.cmd = None
