@@ -1,8 +1,6 @@
 import bpy
 import sys
 import json
-print(__name__,' ','didj'*50)
-#path = r'C:\Users\root\Documents\VS\python\render_mang\export.json'
 path = sys.argv[5]
 def changeRsettings(scene,rSettings):
     
@@ -12,7 +10,7 @@ def changeRsettings(scene,rSettings):
     
     scene.frame_start = rSettings['startFrame']
     scene.frame_end = rSettings['endFrame']
-    print(rSettings['fps'])
+
     scene.render.fps = rSettings['fps']
     
     engine = ''
@@ -32,8 +30,7 @@ def changeRsettings(scene,rSettings):
 def checkJob(job):
     return job['path'] ==  bpy.data.filepath.replace('\\','/')   
 
-#def renderScene():
-#    bpy.ops.render.render()
+
 
 def switchCamera(scene,cam):
     scene.camera =scene.objects[cam]
@@ -68,8 +65,7 @@ with open(path,'r') as f:
 for job in jobs:
     if checkJob(job):
         break
-    else:
-        print('nope')
+
         
 for scene in job['scenes']:
     if scene['isActiv']:
