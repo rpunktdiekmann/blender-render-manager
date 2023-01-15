@@ -2,19 +2,20 @@ import tkinter as tk
 import os
 from utils import Colors
 from tkinter import filedialog as fd
+from tkinterdnd2 import DND_FILES, TkinterDnD
 from model import Blender
 from tkinter.messagebox import askyesno
 from utils import writeToVersionJSON,writeToSettingsJSON
 #Exception wenn Entrys leer sind
 class AddBlenderVersionWindow:
-    def __init__(self,master,parent,settings):
+    def __init__(self,master,parent,settings,path=''):
         self.parent = parent
         self.master = master
         self.settings = settings
         self.window = tk.Toplevel(self.master,bg=Colors.background)
         self.window.protocol("WM_DELETE_WINDOW", self.on_closing)
         self.window.iconbitmap(r"img\icon.ico")
-        self.blendPath = ''
+        self.blendPath = path if path else''
         self.nameVar = tk.StringVar()
         self.versionVar = tk.StringVar()
 
@@ -185,8 +186,12 @@ class BlenderVersionSettings:
         self.footerFrame.pack(side=tk.BOTTOM,fill=tk.BOTH)
         self.saveButton = tk.Button(self.footerFrame,text='Ok',height=1,width=7,command=lambda: self.closeEvent(),bg=Colors.background, fg = Colors.fontColor)
         self.saveButton.pack(side=tk.RIGHT,pady=5,padx=5)
-
+        self.window.drop_target_register(DND_FILES)  
+        self.window.dnd_bind("<<Drop>>",self.dropEvent) 
         self.drawWidgets()
+    
+    def dropEvent(self,event):
+        AddBlenderVersionWindow(self.window,self,self.settings,path=event.data)
     
     def drawWidgets(self):
         for i, b in enumerate(self.blendVersions):
