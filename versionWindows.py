@@ -27,9 +27,9 @@ class AddBlenderVersionWindow:
         self.contentFrame.grid_columnconfigure(3, weight=1)
         self.contentFrame.grid_rowconfigure(1, weight=1)
         self.nameLabel = tk.Label(self.contentFrame,text='Name: ',bg=Colors.background, fg = Colors.fontColor)
-        self.nameEntry = tk.Entry(self.contentFrame,textvariable=self.nameVar,bg=Colors.background, fg = Colors.fontColor)
+        self.nameEntry = tk.Entry(self.contentFrame,textvariable=self.nameVar,bg=Colors.background, fg = Colors.fontColor,insertbackground=Colors.fontColor)
         self.versionLabel = tk.Label(self.contentFrame,text='Version: ',bg=Colors.background, fg = Colors.fontColor)
-        self.versionEntry = tk.Entry(self.contentFrame,textvariable=self.versionVar,bg=Colors.background, fg = Colors.fontColor)
+        self.versionEntry = tk.Entry(self.contentFrame,textvariable=self.versionVar,bg=Colors.background, fg = Colors.fontColor,insertbackground=Colors.fontColor)
         self.pathButton = tk.Button(self.contentFrame,text=self.blendPath if self.blendPath else 'Select Blender path', command=lambda : self.browseBlenderPath(),
             bg=Colors.background, fg = Colors.fontColor )
         self.saveButton = tk.Button(self.window,text='Save',command=lambda : self.save(),
