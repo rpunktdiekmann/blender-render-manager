@@ -11,8 +11,6 @@ class DragDropFrame(tk.Frame):
         self.pack_kwargs = []
         
         super().__init__(parent, *args, **kwargs)
-        c ='hand1' if self.drag_dir =='Y' else 'watch'
-        self.config(cursor=c)
         self.bind('<Button-1>', self.on_press)
         self.bind('<ButtonRelease-1>', self.on_release)
         self.bind('<B1-Motion>', self.on_motion)
