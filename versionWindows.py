@@ -227,12 +227,6 @@ class BlenderVersionSettings:
         for elm in self.blendWidgets:
             elm.frame.destroy()
     
-
-    
-    # def addBlenderVersion(self):
-    #     a = AddBlenderVersionWindow(self.window,self,self.settings)
-
-    #     self.updateCanvas()
     
     def addBlenderVersion(self,blenderVersion):
         a=BlendVersionWidget(self,blenderVersion)
