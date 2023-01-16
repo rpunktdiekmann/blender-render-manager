@@ -4,7 +4,6 @@ from tkinter.ttk import Progressbar,Style
 from tkinter import filedialog as fd
 from tkinterdnd2 import DND_FILES, TkinterDnD
 import os
-import signal
 import subprocess
 import threading
 from utils import Colors, checkOS, exportJob,createJob
@@ -210,10 +209,6 @@ class MainGUI:
         self.scrollbar.pack(fill=tk.Y, side=tk.RIGHT, expand=tk.FALSE)
         self.canvasFrame=self.canvas.create_window((0,0), window=self.contentFrame, anchor=tk.E)
         self.canvas.pack(fill=tk.Y, side=tk.TOP, expand=tk.TRUE)
-        
-        
-        
-
         self.root.bind("<MouseWheel>", self._on_mousewheel)
         
 
