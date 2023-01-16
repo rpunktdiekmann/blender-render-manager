@@ -175,7 +175,7 @@ class MainGUI:
     #Einstellung Tab
         navFrame = tk.Frame(self.root,bg=Colors.header,height=40)
         navFrame.pack(side=tk.TOP,fill=tk.X)
-        self.settingsButton = tk.Button(navFrame, text="Settings",command=self.openSettings,bg=Colors.background, fg = Colors.fontColor)
+        self.settingsButton = tk.Button(navFrame, text="Manage Blender Versions",command=self.openSettings,bg=Colors.background, fg = Colors.fontColor)
         self.settingsButton.pack(side=tk.LEFT, anchor=tk.NW,pady=5)
         self.renderAllFilesBtn = tk.Checkbutton(navFrame, text="Render all Files",variable=self.isAllFiles,command=self.fileSwitch,selectcolor= Colors.widget,activebackground=Colors.widget,bg=Colors.widget,fg=Colors.fontColor)
         self.renderAllFilesBtn.pack(side=tk.LEFT,padx=10,pady=5)
