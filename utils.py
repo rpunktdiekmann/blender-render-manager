@@ -3,7 +3,8 @@ from model import RenderSettings,SceneInfo,RenderEngine
 import logging
 import sys
 
-
+def mouseWheelEvent(canvas,event):
+    canvas.yview_scroll(int(-1*(event.delta/120)), "units")
 
 def getOutputFormat(i):
     out = ''

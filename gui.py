@@ -128,7 +128,7 @@ class Entry:
 class MainGUI:
     from versionWindows import BlenderVersionSettings
     from model import ProgramSettings
-    from utils import exportJob,readVersionJSON,readSettingsJSON
+    from utils import exportJob,readVersionJSON,readSettingsJSON,mouseWheelEvent
     
     def __init__(self):        
         path = os.path.dirname(os.path.realpath(__file__))
@@ -163,7 +163,7 @@ class MainGUI:
 
         self.isAllFiles = tk.IntVar(value=0)
 
-        self.canvas = tk.Canvas(self.root, width=380 ,background=Colors.background,highlightthickness=0)
+        self.canvas = tk.Canvas(self.root, background=Colors.background,highlightthickness=0)
         self.scrollbar=Scrollbar(self.root,orient="vertical",command=lambda:self.canvas.yview())
         self.contentFrame = tk.Frame(self.canvas,bg=Colors.background)
     
@@ -208,8 +208,9 @@ class MainGUI:
         self.canvas.configure(yscrollcommand=self.scrollbar.set)  
         self.scrollbar.config(orient=tk.VERTICAL, command=self.canvas.yview)      
         self.scrollbar.pack(fill=tk.Y, side=tk.RIGHT, expand=tk.FALSE)
-        self.canvas.pack(fill=tk.Y, side=tk.BOTTOM, expand=tk.TRUE)
-        self.canvasFrame=self.canvas.create_window((100,0), window=self.contentFrame, anchor=tk.N)
+        self.canvasFrame=self.canvas.create_window((0,0), window=self.contentFrame, anchor=tk.E)
+        self.canvas.pack(fill=tk.Y, side=tk.TOP, expand=tk.TRUE)
+        
         
         
 
@@ -264,7 +265,10 @@ class MainGUI:
         entryWidget.pack()
         
         self.entries.append(entryWidget)
+        self.contentFrame.update()
+
         self.updateCanvas()
+        print(self.contentFrame.winfo_y())
 
     def export(self):
         exportJob(self.jobs)
@@ -354,7 +358,7 @@ class MainGUI:
         self.jobs.pop(self.jobs.index(entry.Job))
 
     def _on_mousewheel(self, event):
-        self.canvas.yview_scroll(int(-1*(event.delta/120)), "units")
+        MainGUI.mouseWheelEvent(self.canvas,event)
     
     def mainloop(self):
         self.root.mainloop()
