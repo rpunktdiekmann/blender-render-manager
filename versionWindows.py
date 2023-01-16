@@ -1,12 +1,11 @@
 import tkinter as tk
-from tkinter import Scrollbar
 import os
 from utils import Colors
 from tkinter import filedialog as fd
 from tkinterdnd2 import DND_FILES, TkinterDnD
 from model import Blender
 from tkinter.messagebox import askyesno
-from utils import writeToVersionJSON,writeToSettingsJSON, mouseWheelEvent
+from utils import writeToVersionJSON,writeToSettingsJSON
 #Exception wenn Entrys leer sind
 class AddBlenderVersionWindow:
     def __init__(self,master,parent,settings,path=''):
@@ -177,19 +176,8 @@ class BlenderVersionSettings:
         self.head.pack(side=tk.TOP,fill=tk.X)
         self.AddVersionButton = tk.Button(self.head,text='Add new Blender',height=1,bg=Colors.background, fg = Colors.fontColor,command=lambda: AddBlenderVersionWindow(self.window,self,settings))
         self.AddVersionButton.pack(side=tk.LEFT,pady=5,padx=5)
-        self.canvas = tk.Canvas(self.window, background=Colors.background,highlightthickness=0)
-        self.scrollbar=Scrollbar(self.window,orient="vertical",command=lambda:self.canvas.yview())
-        self.contentFrame = tk.Frame(self.canvas,bg=Colors.background)
-        #self.contentFrame.pack(side=tk.TOP,fill=tk.BOTH)
-       
-        self.canvas.configure(yscrollcommand=self.scrollbar.set)  
-        self.scrollbar.config(orient=tk.VERTICAL, command=self.canvas.yview)      
-        self.scrollbar.pack(fill=tk.Y, side=tk.RIGHT, expand=tk.FALSE)
-        self.canvasFrame=self.canvas.create_window((0,0), window=self.contentFrame, anchor=tk.W)
-        self.canvas.pack(fill=tk.BOTH, side=tk.TOP, expand=tk.TRUE)
-        self.window.bind("<MouseWheel>", self._on_mousewheel)
-
-
+        self.contentFrame = tk.Frame(self.window,bg=Colors.background)
+        self.contentFrame.pack(side=tk.TOP,fill=tk.BOTH)
         self.footerFrame = tk.Frame(self.window,bg=Colors.background)
         self.footerFrame.pack(side=tk.BOTTOM,fill=tk.BOTH)
         self.saveButton = tk.Button(self.footerFrame,text='Ok',height=1,width=7,command=lambda: self.closeEvent(),bg=Colors.background, fg = Colors.fontColor)
@@ -197,14 +185,6 @@ class BlenderVersionSettings:
         self.window.drop_target_register(DND_FILES)  
         self.window.dnd_bind("<<Drop>>",self.dropEvent) 
         self.drawWidgets()
-        self.updateCanvas()
-    
-    def updateCanvas(self):
-        self.canvas.update_idletasks()
-        self.canvas.configure(scrollregion = self.canvas.bbox("all"))
-    
-    def _on_mousewheel(self,event):
-        mouseWheelEvent(self.canvas,event)
     
     def dropEvent(self,event):
         AddBlenderVersionWindow(self.window,self,self.settings,path=event.data)
@@ -220,19 +200,22 @@ class BlenderVersionSettings:
 
         self.blendVersions.remove(widget.blendVersion)
         self.drawWidgets()
-        self.updateCanvas()
         
 
     def deleteAllWidgets(self):
         for elm in self.blendWidgets:
             elm.frame.destroy()
     
+
+    
+    def addBlenderVersion2(self,name,version,path):
+        blend = Blender(name,version,path)
+        self.settings.blenderVersions.append(blend)
     
     def addBlenderVersion(self,blenderVersion):
         a=BlendVersionWidget(self,blenderVersion)
         a.packWidget(len(self.blendVersions)-1)
         self.blendWidgets.append(a)
-        self.updateCanvas()
 
     def closeEvent(self,):
         self.parent.updateBlenderVersions()
