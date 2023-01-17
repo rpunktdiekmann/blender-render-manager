@@ -23,7 +23,7 @@ import logging
 import os
 import struct
 import tempfile
-
+import zstandard  
 log = logging.getLogger("blendfile")
 
 
@@ -46,6 +46,7 @@ def open_blend(filename, access="rb"):
     supports 2 kind of blend files. Uncompressed and compressed.
     Known issue: does not support packaged blend files
     """
+    """Added Support for Zstd compressed files"""
     handle = open(filename, access)
     magic_test = b"BLENDER"
     magic = handle.read(len(magic_test))
@@ -56,10 +57,29 @@ def open_blend(filename, access="rb"):
         bfile.is_compressed = False
         bfile.filepath_orig = filename
         return bfile
-    #elif magic[:2] == b'\x1f\x8b':
-    # b'\x28\xb5' for 3.0 compressed files
-    elif magic[:2] == b'\x1f\x8b': 
+    elif magic[:2] == b'\x28\xb5':
+        
+        log.debug("Zstd blendfile detected")
+        log.debug("decompressing started")
+        dctx = zstandard.ZstdDecompressor()
+        handle.seek(0, os.SEEK_SET)
+        ofh=tempfile.TemporaryFile()
+        dctx.copy_stream(handle, ofh)
+        handle.close()
+        ofh.seek(0)
+        magic = ofh.read(len(magic_test))
+        if magic == magic_test:
+            ofh.seek(0)
+            log.debug("decompressing finished")
+            log.debug("resetting decompressed file")
+            bfile = BlendFile(ofh)
+            bfile.is_compressed = True
+            bfile.filepath_orig = filename
+            return bfile
+        else:
+            raise BlendFileError("filetype inside gzip not a blend")
 
+    elif magic[:2] == b'\x1f\x8b': 
         log.debug("gzip blendfile detected")
         handle.close()
         log.debug("decompressing started")
