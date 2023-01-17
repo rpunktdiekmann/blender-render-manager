@@ -24,4 +24,5 @@ Small render manager for Blender (2.8+) with a graphical user interface
 
 # Dependencies:
 TkinterDnD2
-Tkinter.tkk
+
+zstandard 
