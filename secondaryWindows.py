@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import Scrollbar
 from tkinter.messagebox import askyesno
 import os
+import copy
 from model import RenderEngine
 from utils import Colors
 from utils import checkIsDigitInput,convertEnumToStr,convertStrToEnum
@@ -233,11 +234,11 @@ class SceneWidget:
 
     def copySettings(self):
         global currentCopiedSettings
-        currentCopiedSettings = self.scene.rSettings
+        currentCopiedSettings = copy.deepcopy(self.scene.rSettings) 
 
     def pasteSettings(self):
         global currentCopiedSettings
-        print(currentCopiedSettings.outputPath)
+        self.scene.rSettings = currentCopiedSettings
     
     def openPath(self):
         '''ONLY FOR WINDOWS'''
@@ -266,10 +267,6 @@ class SceneWidget:
         self.sceneYButton.config(validate='key',validatecommand=(self.vald,'%P'))
         self.sceneXButton.config(validate='key',validatecommand=(self.vald,'%P'))
         self.sceneSizeButton.config(validate='key',validatecommand=(self.vald,'%P'))
-
-
-    def test(self):
-        self.scene.rSettings.x = self.sceneXButton.get()
 
     def safe(self):
         print(self.scene.cameras)
@@ -401,5 +398,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-    
