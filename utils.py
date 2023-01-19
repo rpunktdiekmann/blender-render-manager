@@ -1,4 +1,4 @@
-from model import RenderSettings,SceneInfo,RenderEngine    
+from model import RenderSettings,SceneInfo,RenderEngine,ColorSettings  
 
 import logging
 import sys
@@ -104,7 +104,6 @@ class BlendReader:
             for scene in scenes:
                 objBlocks = []
                 cams = []
-                #collectionBlocks = []  #Evt. braucht man die Collections, aber das könnte den Funktionsumfang sprengen
                 sceneName = scene[b'id',b'name'][2:].decode('utf-8')
                 logging.debug('Found scene: %s',sceneName)
                 #Master Collection = Scene Collection, jede Blender Scene hat genau eine Master Collection
@@ -161,9 +160,16 @@ class BlendReader:
         outputPath =    scene[b'r', b'pic'].decode('utf-8')
         # muss noch gecheckt werden ob output != '' ist, sonst upsi dupsi im code dann später alter vallah 
         output=         getOutputFormat(int(scene[b'r',b'im_format',b'imtype']))
-
-        return RenderSettings(frame_start,frame_end,fps_info,x_size,y_size,size,output,outputPath,RenderEngine(engine))
+        colorSettings = self.readColorManagement(scene)
+        return RenderSettings(frame_start,frame_end,fps_info,x_size,y_size,size,output,outputPath,RenderEngine(engine),colorSettings)
     
+    def readColorManagement(self,scene):
+        view_transform = scene[b'view_settings',b'view_transform'].decode('utf-8')
+        look = scene[b'view_settings',b'look'].decode('utf-8')
+        exposure = scene[b'view_settings',b'exposure']
+        gamma = scene[b'view_settings',b'gamma']
+        return ColorSettings(view_transform,look,exposure,gamma)
+
 
     def getAllCameras(self,objs,cams):
         for o in objs:
@@ -271,11 +277,11 @@ def convertStrToEnum(state):
 
 def main():
     
-    filepath = r'E:\f.blend'
+    filepath = r'E:\zstd.blend'
     a = BlendReader(filepath)
     scs = a.readBlendFile()
     print(type(scs[0]))
-    print(scs[0].rSettings.engine)
+    print(scs[0].rSettings.colorSettings.look)
     #print(getOS())
    
 
