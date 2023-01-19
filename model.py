@@ -6,6 +6,15 @@ class RenderEngine(Enum):
     EEVEE = 'BLENDER_EEVEE'
     WORKBENCH = 'BLENDER_WORKBENCH'
 
+
+@dataclass
+class ColorSettings:
+    view_transform: str
+    look: str
+    exposure: float
+    gamma: float
+
+
 @dataclass
 class RenderSettings:
     startFrame: int
@@ -17,6 +26,7 @@ class RenderSettings:
     output: str
     outputPath: str
     engine: RenderEngine
+    colorSettings: ColorSettings
     isCamBurst : bool = False
     isCamOwnFolder : bool = False
 
