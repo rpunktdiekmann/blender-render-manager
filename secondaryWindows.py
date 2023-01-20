@@ -3,6 +3,7 @@ from tkinter import Scrollbar
 from tkinter.messagebox import askyesno
 import os
 import copy
+import abc
 from model import RenderEngine
 from utils import Colors
 from utils import checkIsDigitInput,convertEnumToStr,convertStrToEnum
@@ -11,20 +12,57 @@ from exceptionWindows import ExceptionWindow
 from dragndrop_frame import DragDropFrame
 
 currentCopiedSettings = None
-class ColorManagementSettings:
+
+class SecondaryWindow:
+    def __init__(self,master,do_pack=True):
+        self.master = master
+        self.window = tk.Toplevel(self.master,bg=Colors.widget)
+        self.contentFrame = tk.Frame(self.window,bg=Colors.widget)
+        #self.headerFrame = tk.Frame(self.window,bg=Colors.header,height=40)
+        self.footerFrame  = tk.Frame(self.window,bg=Colors.header,height=40)
+        
+        self.footerSeperator= tk.ttk.Separator(self.footerFrame, orient=tk.HORIZONTAL)
+        self.saveBtn = tk.Button(self.footerFrame,bg=Colors.background,fg=Colors.fontColor,width=7,text='Save',command=lambda: self.save(),height=1)
+        
+        if do_pack:
+            self.pack()
+        
+    
+    
+    def pack(self):
+        self.footerSeperator.pack(side=tk.TOP,fill=tk.X)
+        self.saveBtn.pack(side=tk.RIGHT,anchor=tk.SE)
+        #self.headerFrame.pack(side=tk.TOP,fill=tk.X)
+        self.contentFrame.pack(side=tk.TOP,fill=tk.X)
+        self.footerFrame.pack(side=tk.BOTTOM,fill=tk.X)
+    
+    @abc.abstractmethod
+    def save(self):pass
+    
+    def closeWindowEvent(self):
+        answer = askyesno(title='confirmation',
+                message='Are you sure that you want to quit?\nChanges wil be discarded')
+        if answer:
+            self.destroy()
+            return 
+        self.window.focus_force()
+    
+    def destroy(self):
+        self.window.destroy()
+
+class ColorManagementSettings(SecondaryWindow):
     def __init__(self,settingsWindow) :
         self.settingsWindow = settingsWindow
         self.scene = settingsWindow.scene
         self.rSettings = self.scene.rSettings
         self.colorSettings = self.rSettings.colorSettings
-        self.window = tk.Toplevel(self.settingsWindow.window,bg=Colors.widget)
+        self.master = self.settingsWindow.window
+        super().__init__(self.master)
         self.window.title(self.scene.name + ' - Color Management')
         self.window.iconbitmap(r"img\icon.ico")
         self.window.geometry('400x250')
         self.window.protocol("WM_DELETE_WINDOW", self.closeWindowEvent)
-        self.contentFrame = tk.Frame(self.window,bg=Colors.widget)
         tk.Grid.columnconfigure(self.contentFrame,1,weight=1)
-        self.footerFrame = tk.Frame(self.window,bg=Colors.header,height=40)
 
         self.view_transformVar = tk.StringVar(value=self.colorSettings.view_transform)
         self.lookVar = tk.StringVar(value=self.colorSettings.look)
@@ -49,11 +87,6 @@ class ColorManagementSettings:
         self.gammaScale = tk.Scale(self.contentFrame,from_=0,to=5,orient=tk.HORIZONTAL,digits=3,resolution=0.01,bg=Colors.widget,fg=Colors.fontColor,troughcolor=Colors.background,highlightthickness=0)
         self.gammaScale.grid(column=1,row=5,sticky=tk.E,pady=3,padx=5)
 
-        tk.ttk.Separator(self.footerFrame, orient=tk.HORIZONTAL).pack(side=tk.TOP,fill=tk.X,expand=True)
-        self.saveBtn = tk.Button(self.footerFrame,bg=Colors.background,fg=Colors.fontColor,width=7,text='Save',command=lambda: self.save(),height=1)
-        self.saveBtn.pack(side=tk.RIGHT,anchor=tk.SE)
-        self.contentFrame.pack(side=tk.TOP,fill=tk.X)
-        self.footerFrame.pack(side=tk.BOTTOM,fill=tk.X)
 
     def save(self):
         self.colorSettings.view_transform = self.view_transformVar.get()
@@ -62,23 +95,15 @@ class ColorManagementSettings:
         self.colorSettings.gamma = self.gammaVar.get()
         self.destroy()
 
-    def closeWindowEvent(self):
-        answer = askyesno(title='confirmation',
-                message='Are you sure that you want to quit?\nChanges wil be discarded')
-        if answer:
-            self.destroy()
-            return 
-        self.window.focus_force()   
-
     def destroy(self):
         self.settingsWindow.window.focus_force()
         self.window.destroy()
 
-class RenderSettings:
+class RenderSettings(SecondaryWindow):
     def __init__(self,sceneWidget):
         self.sceneWidget = sceneWidget
         self.jobWindow = self.sceneWidget.parent.window
-        self.window = tk.Toplevel(self.jobWindow,bg=Colors.widget)
+        super().__init__(self.jobWindow,False)
         self.window.title(sceneWidget.scene.name+' - Render Settings')
         self.window.protocol("WM_DELETE_WINDOW", self.closeWindowEvent)
         self.window.iconbitmap(r"img\icon.ico")
@@ -95,75 +120,58 @@ class RenderSettings:
         self.sceneY = tk.IntVar(value=self.scene.rSettings.y)
         self.sceneSize = tk.IntVar(value=self.scene.rSettings.size)
         
-        
-        self.footer = tk.Frame(self.window,bg=Colors.header,height=40)
-        tk.ttk.Separator(self.footer, orient=tk.HORIZONTAL).pack(side=tk.TOP,fill=tk.X)
-        self.saveButton =tk.Button(self.footer,bg=Colors.background,fg=Colors.fontColor,width=7,text='Save',command=lambda: self.safe(),height=1)
-        self.saveButton.pack(side=tk.RIGHT,anchor=tk.SE)
-        
-        
         self.sceneHeaderFrame = tk.Frame(self.window,bg=Colors.widget)
-        self.renderSettingsFrame = tk.Frame(self.window,bg=Colors.widget)
         tk.Grid.columnconfigure(self.sceneHeaderFrame,1,weight=1)
         tk.Grid.rowconfigure(self.sceneHeaderFrame,0,weight=1)
-        tk.Grid.columnconfigure(self.renderSettingsFrame,4,weight=1)
-        tk.Grid.rowconfigure(self.renderSettingsFrame,0,weight=1)
+        tk.Grid.columnconfigure(self.contentFrame,4,weight=1)
+        tk.Grid.rowconfigure(self.contentFrame,0,weight=1)
 
 
         tk.Label(self.sceneHeaderFrame,text='Scene Settings: ',bg=Colors.widget,fg=Colors.fontColor).grid(row=1,column=0,sticky='W',pady=5)
         tk.ttk.Separator(self.sceneHeaderFrame, orient=tk.HORIZONTAL).grid(column=0, row=2, columnspan=3, sticky='WE',pady=(0,5))
 
         #           ---Render Settings--
-        tk.Label(self.renderSettingsFrame,text='Output Path',bg=Colors.widget,fg=Colors.fontColor).grid(row=0,column=0,sticky='W',padx=(0,1))
-        tk.Label(self.renderSettingsFrame,text='Color Management',bg=Colors.widget,fg=Colors.fontColor).grid(row=1,column=0,sticky='W',padx=(0,1))
-        tk.Label(self.renderSettingsFrame,text='Output Engine',bg=Colors.widget,fg=Colors.fontColor).grid(row=2,column=0,sticky='W',padx=(0,1))
+        tk.Label(self.contentFrame,text='Output Path',bg=Colors.widget,fg=Colors.fontColor).grid(row=0,column=0,sticky='W',padx=(0,1))
+        tk.Label(self.contentFrame,text='Color Management',bg=Colors.widget,fg=Colors.fontColor).grid(row=1,column=0,sticky='W',padx=(0,1))
+        tk.Label(self.contentFrame,text='Output Engine',bg=Colors.widget,fg=Colors.fontColor).grid(row=2,column=0,sticky='W',padx=(0,1))
 
         
-        self.sceneOutputButton = tk.Button(self.renderSettingsFrame,text=self.outputPath.get(),command=lambda: self.browseOutPutpath(),background=Colors.widget,fg=Colors.fontColor)
+        self.sceneOutputButton = tk.Button(self.contentFrame,text=self.outputPath.get(),command=lambda: self.browseOutPutpath(),background=Colors.widget,fg=Colors.fontColor)
         self.sceneOutputButton.grid(row=0,column=1,padx=7,sticky='W')
-        self.colorManagementBtn = tk.Button(self.renderSettingsFrame,text='Open Color Settings',command=lambda: self.openColorSettings(),bg=Colors.background,fg=Colors.fontColor) 
+        self.colorManagementBtn = tk.Button(self.contentFrame,text='Open Color Settings',command=lambda: self.openColorSettings(),bg=Colors.background,fg=Colors.fontColor) 
         self.colorManagementBtn.grid(row=1,column=1,sticky='W',padx=7)
-        self.sceneEngineButton = tk.OptionMenu(self.renderSettingsFrame,self.sceneEngine,*[convertEnumToStr(e) for e in RenderEngine]) 
+        self.sceneEngineButton = tk.OptionMenu(self.contentFrame,self.sceneEngine,*[convertEnumToStr(e) for e in RenderEngine]) 
         self.sceneEngineButton.grid(row=2,column=1, sticky='W',padx=7)
         self.sceneEngineButton.config(bg=Colors.widget,fg=Colors.fontColor,highlightthickness=0)
         
-        tk.Label(self.renderSettingsFrame,text='Start Frame',bg=Colors.widget,fg=Colors.fontColor).grid(row=0,column=2,sticky='E',padx=(70,1))
-        tk.Label(self.renderSettingsFrame,text='End Frame',bg=Colors.widget,fg=Colors.fontColor).grid(row=1,column=2,sticky='E',padx=(70,1))
-        tk.Label(self.renderSettingsFrame,text='FPS',bg=Colors.widget,fg=Colors.fontColor).grid(row=2,column=2,sticky='E',padx=(70,1))
-        self.sceneStartButton = tk.Entry(self.renderSettingsFrame,textvariable=self.sceneStart,background=Colors.widget,fg=Colors.fontColor) 
+        tk.Label(self.contentFrame,text='Start Frame',bg=Colors.widget,fg=Colors.fontColor).grid(row=0,column=2,sticky='E',padx=(70,1))
+        tk.Label(self.contentFrame,text='End Frame',bg=Colors.widget,fg=Colors.fontColor).grid(row=1,column=2,sticky='E',padx=(70,1))
+        tk.Label(self.contentFrame,text='FPS',bg=Colors.widget,fg=Colors.fontColor).grid(row=2,column=2,sticky='E',padx=(70,1))
+        self.sceneStartButton = tk.Entry(self.contentFrame,textvariable=self.sceneStart,background=Colors.widget,fg=Colors.fontColor) 
         self.sceneStartButton.grid(row=0,column=3, sticky='W',padx=7)
-        self.sceneEndButton = tk.Entry(self.renderSettingsFrame,textvariable=self.sceneEnd,background=Colors.widget,fg=Colors.fontColor) 
+        self.sceneEndButton = tk.Entry(self.contentFrame,textvariable=self.sceneEnd,background=Colors.widget,fg=Colors.fontColor) 
         self.sceneEndButton.grid(row=1,column=3,padx=7)
-        self.sceneFPSButton = tk.Entry(self.renderSettingsFrame,textvariable=self.sceneFPS,background=Colors.widget,fg=Colors.fontColor)
+        self.sceneFPSButton = tk.Entry(self.contentFrame,textvariable=self.sceneFPS,background=Colors.widget,fg=Colors.fontColor)
         self.sceneFPSButton.grid(row=2,column=3, sticky='E',padx=7)
         
-        tk.Label(self.renderSettingsFrame,text='X Size',bg=Colors.widget,fg=Colors.fontColor).grid(row=0,column=4,sticky='E',padx=(70,1))
-        tk.Label(self.renderSettingsFrame,text='Y Size',bg=Colors.widget,fg=Colors.fontColor).grid(row=1,column=4,sticky='E',padx=(70,1))
-        tk.Label(self.renderSettingsFrame,text='Size',bg=Colors.widget,fg=Colors.fontColor).grid(row=2,column=4,sticky='E',padx=(70,1))
-        self.sceneXButton = tk.Entry(self.renderSettingsFrame,textvariable=self.sceneX,background=Colors.widget,fg=Colors.fontColor) 
+        tk.Label(self.contentFrame,text='X Size',bg=Colors.widget,fg=Colors.fontColor).grid(row=0,column=4,sticky='E',padx=(70,1))
+        tk.Label(self.contentFrame,text='Y Size',bg=Colors.widget,fg=Colors.fontColor).grid(row=1,column=4,sticky='E',padx=(70,1))
+        tk.Label(self.contentFrame,text='Size',bg=Colors.widget,fg=Colors.fontColor).grid(row=2,column=4,sticky='E',padx=(70,1))
+        self.sceneXButton = tk.Entry(self.contentFrame,textvariable=self.sceneX,background=Colors.widget,fg=Colors.fontColor) 
         self.sceneXButton.grid(row=0,column=5,padx=7)
-        self.sceneYButton = tk.Entry(self.renderSettingsFrame,textvariable=self.sceneY,background=Colors.widget,fg=Colors.fontColor) 
+        self.sceneYButton = tk.Entry(self.contentFrame,textvariable=self.sceneY,background=Colors.widget,fg=Colors.fontColor) 
         self.sceneYButton.grid(row=1,column=5,padx=7)
-        self.sceneSizeButton = tk.Entry(self.renderSettingsFrame,textvariable=self.sceneSize,background=Colors.widget,fg=Colors.fontColor) 
+        self.sceneSizeButton = tk.Entry(self.contentFrame,textvariable=self.sceneSize,background=Colors.widget,fg=Colors.fontColor) 
         self.sceneSizeButton.grid(row=2,column=5,padx=7)
 
         self.createValidator()
         self.sceneHeaderFrame.pack(side=tk.TOP,fill=tk.X,pady=10)
-        self.renderSettingsFrame.pack(side=tk.TOP,fill=tk.X,pady=10)
-        self.footer.pack(side=tk.BOTTOM, fill=tk.X)
+        super().pack()
 
     def openColorSettings(self):
         a = ColorManagementSettings(self)
-
-    def closeWindowEvent(self):
-        answer = askyesno(title='confirmation',
-                message='Are you sure that you want to quit?\nChanges wil be discarded')
-        if answer:
-            self.destroy()
-            return 
-        self.window.focus_force()   
-        
-    def safe(self):
+       
+    def save(self):
         self.scene.rSettings.outputPath = self.outputPath.get()
         #self.scene.rSettings.output = self.outputFormat.get()
         self.scene.rSettings.engine = convertStrToEnum(self.sceneEngine.get())
@@ -181,7 +189,7 @@ class RenderSettings:
         self.window.destroy()
 
     def browseOutPutpath(self):
-        self.outputPath.set(fd.askdirectory(parent=self.renderSettingsFrame, initialdir=self.outputPath.get(), title='Please select a output path'))
+        self.outputPath.set(fd.askdirectory(parent=self.contentFrame, initialdir=self.outputPath.get(), title='Please select a output path'))
         self.sceneOutputButton.config(text=self.outputPath.get())
 
     def createValidator(self):
