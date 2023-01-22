@@ -135,9 +135,14 @@ class RenderSettings(SecondaryWindow):
         tk.Label(self.contentFrame,text='Color Management',bg=Colors.widget,fg=Colors.fontColor).grid(row=1,column=0,sticky='W',padx=(0,1))
         tk.Label(self.contentFrame,text='Output Engine',bg=Colors.widget,fg=Colors.fontColor).grid(row=2,column=0,sticky='W',padx=(0,1))
 
-        
-        self.sceneOutputButton = tk.Button(self.contentFrame,text=self.outputPath.get(),command=lambda: self.browseOutPutpath(),background=Colors.widget,fg=Colors.fontColor)
-        self.sceneOutputButton.grid(row=0,column=1,padx=7,sticky='W')
+        self.outputFrame = tk.Frame(self.contentFrame,bg=Colors.widget)
+        self.sceneOutputButton = tk.Button(self.outputFrame,text=self.outputPath.get(),command=lambda: self.browseOutPutpath(),background=Colors.widget,fg=Colors.fontColor)
+        self.sceneOutputButton.pack(side=tk.LEFT)
+        self.folderPNG = tk.PhotoImage(file=r'img\folder.png')
+        self.openPathBtn = tk.Button(self.outputFrame,image=self.folderPNG,bg=Colors.background,command=lambda:self.openPath())
+        self.openPathBtn.pack(side=tk.LEFT)
+        self.outputFrame.grid(row=0,column=1,padx=7,sticky='W')
+
         self.colorManagementBtn = tk.Button(self.contentFrame,text='Open Color Settings',command=lambda: self.openColorSettings(),bg=Colors.background,fg=Colors.fontColor) 
         self.colorManagementBtn.grid(row=1,column=1,sticky='W',padx=7)
         self.sceneEngineButton = tk.OptionMenu(self.contentFrame,self.sceneEngine,*[convertEnumToStr(e) for e in RenderEngine]) 
@@ -199,6 +204,11 @@ class RenderSettings(SecondaryWindow):
         self.sceneYButton.config(validate='key',validatecommand=(self.vald,'%P'))
         self.sceneXButton.config(validate='key',validatecommand=(self.vald,'%P'))
         self.sceneSizeButton.config(validate='key',validatecommand=(self.vald,'%P'))
+
+    def openPath(self):
+        '''ONLY FOR WINDOWS'''
+        path = self.outputPath.get()
+        os.startfile(path)
 
 class CameraWidget:
     def __init__(self,sceneWidget,cam_name):
@@ -279,9 +289,9 @@ class SceneWidget:
         self.pasteBtn = tk.Button(self.renderSettingsFrame,image=self.pastePNG,bg=Colors.background,command=lambda:self.pasteSettings())
         self.pasteBtn.pack(side=tk.LEFT)
 
-        self.folderPNG = tk.PhotoImage(file=r'img\folder.png')
-        self.openPathBtn = tk.Button(self.renderSettingsFrame,image=self.folderPNG,bg=Colors.background,command=lambda:self.openPath())
-        self.openPathBtn.pack(side=tk.LEFT,padx=4)
+        # self.folderPNG = tk.PhotoImage(file=r'img\folder.png')
+        # self.openPathBtn = tk.Button(self.renderSettingsFrame,image=self.folderPNG,bg=Colors.background,command=lambda:self.openPath())
+        # self.openPathBtn.pack(side=tk.LEFT,padx=4)
         
         #           ---Camera Settings---
         tk.Label(self.cameraSettingsFrame,text='Cameras: ',bg=Colors.widget,fg=Colors.fontColor).pack(side=tk.TOP,anchor='nw',pady=5)
@@ -313,10 +323,7 @@ class SceneWidget:
         global currentCopiedSettings
         self.scene.rSettings = currentCopiedSettings
     
-    def openPath(self):
-        '''ONLY FOR WINDOWS'''
-        path = self.scene.rSettings.outputPath
-        os.startfile(path)
+    
     
     def camButtonsSwitch(self):
         if self.isCamBurst.get():
