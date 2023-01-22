@@ -360,9 +360,9 @@ class MainGUI:
 
 if __name__ == '__main__':
     g = MainGUI()
-    # g.addJob(r'E:\zstd.blend')
-    # g.entries[0].openSettings()
-    # g.entries[0].settingsWindow.sceneWidgets[0].openRsettings()
-    # g.entries[0].settingsWindow.sceneWidgets[0].renderSettingsWindow.openColorSettings()
+    g.addJob(r'E:\zstd.blend')
+    g.entries[0].openSettings()
+    g.entries[0].settingsWindow.sceneWidgets[0].openRsettings()
+    g.entries[0].settingsWindow.sceneWidgets[0].renderSettingsWindow.openColorSettings()
     g.mainloop()
     

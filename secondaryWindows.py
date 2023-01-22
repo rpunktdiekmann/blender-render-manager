@@ -84,7 +84,7 @@ class ColorManagementSettings(SecondaryWindow):
         self.lookBtn.config(bg=Colors.widget,fg=Colors.fontColor,highlightthickness=0)
         self.exposureScale = tk.Scale(self.contentFrame,from_=-10,to=10,variable=self.exposureVar,orient=tk.HORIZONTAL,digits=4,resolution=0.01,bg=Colors.widget,fg=Colors.fontColor,troughcolor=Colors.background,highlightthickness=0)
         self.exposureScale.grid(column=1,row=4,sticky=tk.E,pady=3,padx=5)
-        self.gammaScale = tk.Scale(self.contentFrame,from_=0,to=5,orient=tk.HORIZONTAL,digits=3,resolution=0.01,bg=Colors.widget,fg=Colors.fontColor,troughcolor=Colors.background,highlightthickness=0)
+        self.gammaScale = tk.Scale(self.contentFrame,from_=0,to=5,variable=self.gammaVar,orient=tk.HORIZONTAL,digits=3,resolution=0.01,bg=Colors.widget,fg=Colors.fontColor,troughcolor=Colors.background,highlightthickness=0)
         self.gammaScale.grid(column=1,row=5,sticky=tk.E,pady=3,padx=5)
 
 
@@ -357,6 +357,8 @@ class SceneWidget:
             if w.camVar.get():
                 self.scene.aCamera.append(w.cam_name)
         self.scene.isActiv = self.isActiv.get()
+        self.scene.rSettings.isCamBurst = self.isCamBurst.get()
+        self.scene.rSettings.isCamOwnFolder = self.isCamOwnFolder.get()
 
 class JobAdvancedSettings:
     def __init__(self,parent):

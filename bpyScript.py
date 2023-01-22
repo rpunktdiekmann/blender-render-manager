@@ -3,7 +3,7 @@ import sys
 import json
 path = sys.argv[5]
 def changeRsettings(scene,rSettings):
-    
+    colorsettings = rSettings['colorSettings']
     scene.render.resolution_x = rSettings['x']
     scene.render.resolution_y = rSettings['y']
     scene.render.resolution_percentage =rSettings['size']
@@ -22,7 +22,7 @@ def changeRsettings(scene,rSettings):
         engine = 'BLENDER_WORKBENCH'
 
     scene.render.engine = engine
-    
+    changeColorSettings(scene,colorsettings)
     
 
     #scene.render.image_settings.file_format = rSettings['output']
@@ -30,7 +30,12 @@ def changeRsettings(scene,rSettings):
 def checkJob(job):
     return job['path'] ==  bpy.data.filepath.replace('\\','/')   
 
-
+def changeColorSettings(scene,colorsettings):
+    scene.view_settings.view_transform = colorsettings['view_transform']
+    scene.view_settings.look = colorsettings['look']
+    scene.view_settings.exposure = colorsettings['exposure']
+    scene.view_settings.gamma = colorsettings['gamma']
+    
 
 def switchCamera(scene,cam):
     scene.camera =scene.objects[cam]
@@ -45,13 +50,13 @@ def renderScene(jobScene):
     if rSettings['isCamBurst']:
         for cam in jobScene['cameras']:
             switchCamera(scene,cam)
-            path = f'/{scene.name}/{cam}/{cam}_{scene.name}' if rSettings['isCamOwnFolder'] else f'/{scene.name}_{cam}'
+            path = f'/{scene.name}/{cam}/{cam}_{scene.name}' if rSettings['isCamOwnFolder'] else f'{scene.name}/{scene.name}_{cam}'
             scene.render.filepath = rSettings['outputPath']+path
             bpy.ops.render.render(animation=True, use_viewport=True)  
     else:
         for cam in jobScene['aCamera']:
             switchCamera(scene,cam)
-            path = f'/{scene.name}/{cam}/{cam}_{scene.name}' if rSettings['isCamOwnFolder'] else f'/{scene.name}_{cam}'
+            path = f'/{scene.name}/{cam}/{cam}_{scene.name}' if rSettings['isCamOwnFolder'] else f'{scene.name}/{scene.name}_{cam}'
             scene.render.filepath = rSettings['outputPath']+path
             bpy.ops.render.render(animation=True, use_viewport=True)
         
