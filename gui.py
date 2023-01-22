@@ -106,7 +106,7 @@ class Entry:
            
 
     def pack(self):
-        self.root.do_pack(side=tk.TOP,pady=4,padx=15)#fill=tk.BOTH
+        self.root.do_pack(side=tk.TOP,pady=4,padx=35)#fill=tk.BOTH
 
     def destroyEntry(self):
         self.root.destroy()
@@ -152,7 +152,7 @@ class MainGUI:
         self.stopRenderFlag = False
         self.root = TkinterDnD.Tk()
         self.root.geometry('700x500')
-        self.root.title("A cool render manager")
+        self.root.title("Render Manager")
         self.root.protocol("WM_DELETE_WINDOW", self.closeWindowEvent)
         self.root.configure(background=Colors.background)
         self.root.iconbitmap(r"img\icon.ico")
@@ -182,7 +182,7 @@ class MainGUI:
     #Bottom
         footerFrame = tk.Frame(self.root,bg=Colors.header,height=80)
         footerFrame.pack(side=tk.BOTTOM,fill=tk.BOTH)
-        self.versionLabel = tk.Label(footerFrame, text='Version: 0.01')
+        self.versionLabel = tk.Label(footerFrame, text='Version: 1.00')
         self.versionLabel.pack(side=tk.LEFT,anchor=tk.S)
         self.renderButton = tk.Button(footerFrame, text="Start Render",command=lambda: self.start_blender_thread(None),height=2,bg='GREEN') 
         self.renderButton.pack(side=tk.RIGHT)
@@ -231,7 +231,6 @@ class MainGUI:
             self.stopCurrentJob()
             self.stopRenderFlag = True
         
-    
     def fileSwitch(self):
         if self.isAllFiles.get():
             for e in self.entries:
@@ -239,8 +238,7 @@ class MainGUI:
         else:
             for e in self.entries:
                 e.isActiveBtn.config(state='active')
-                #e.isActiveBtn.config(fg=Colors.fontColor)
-    
+
     def updateCanvas(self):
         self.canvas.update_idletasks()
         self.canvas.configure(scrollregion = self.canvas.bbox("all"))
@@ -287,7 +285,6 @@ class MainGUI:
         '''https://stackoverflow.com/questions/4789837/how-to-terminate-a-python-subprocess-launched-with-shell-true'''
         self.cmd = subprocess.Popen(f'blender.exe {job.path} --background --python {scriptPath} {exportPath}', stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=job.blender.path.replace('blender.exe',''), shell=True)
         out, err = self.cmd.communicate()
-        #print (out)
 
     def closeWindowEvent(self):
         if self.entries:
@@ -363,4 +360,9 @@ class MainGUI:
 
 if __name__ == '__main__':
     g = MainGUI()
+    # g.addJob(r'E:\zstd.blend')
+    # g.entries[0].openSettings()
+    # g.entries[0].settingsWindow.sceneWidgets[0].openRsettings()
+    # g.entries[0].settingsWindow.sceneWidgets[0].renderSettingsWindow.openColorSettings()
     g.mainloop()
+    
